@@ -1,8 +1,9 @@
 "use client";
-import { useState } from 'react';
+export const dynamic = "force-dynamic";
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function ResetConfirmPage() {
+function ResetConfirmInner() {
   const params = useSearchParams();
   const token = params.get('token') || '';
   const [password, setPassword] = useState('');
@@ -71,5 +72,13 @@ export default function ResetConfirmPage() {
         </form>
       )}
     </div>
+  );
+}
+
+export default function ResetConfirmPage() {
+  return (
+    <Suspense>
+      <ResetConfirmInner />
+    </Suspense>
   );
 }
