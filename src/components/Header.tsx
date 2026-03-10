@@ -12,6 +12,9 @@ export default function Header() {
         <Link href="/">SafeScan</Link>
       </h1>
       <nav>
+        <Link href="/resources" className="mr-4 inline-block px-3 py-1 bg-white text-blue-600 rounded shadow hover:bg-gray-100 transition">
+          Resources
+        </Link>
         {session?.user ? (
           <>
             <Link href="/history" className="mr-4 inline-block px-3 py-1 bg-white text-blue-600 rounded shadow hover:bg-gray-100 transition">
