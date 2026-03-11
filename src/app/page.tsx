@@ -26,12 +26,25 @@ export default function Home() {
     };
   const [showDetails, setShowDetails] = useState(false);
 
-  // Handle scan form submit
+  // Handle scan form submit with client-side URL validation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setResult(null);
     if (!url.trim()) return;
+
+    // Client-side URL validation
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url.trim());
+    } catch {
+      setError('Please enter a valid URL (e.g., https://example.com)');
+      return;
+    }
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      setError('URL must start with http:// or https://');
+      return;
+    }
 
     setLoading(true);
     try {

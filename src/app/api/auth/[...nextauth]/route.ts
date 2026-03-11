@@ -23,7 +23,14 @@ export const authOptions = {
         if (user) {
           const valid = await bcrypt.compare(credentials.password, user.passwordHash);
           if (valid) {
-            return { id: user.id, email: user.email };
+            // Return all user fields needed for session
+            return {
+              id: user.id,
+              email: user.email,
+              displayName: user.displayName,
+              profilePicture: user.profilePicture,
+              bio: user.bio,
+            };
           }
         }
         return null;
@@ -38,15 +45,21 @@ export const authOptions = {
         token.isStudent = true;
         token.id = user.id;
         token.email = user.email;
+        token.displayName = user.displayName || null;
+        token.profilePicture = user.profilePicture || null;
+        token.bio = user.bio || null;
       }
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
       session.user = session.user || {};
       (session.user as any).isStudent = token.isStudent;
-      // Copy id & email into session.user
+      // Copy id, email, and profile fields into session.user
       if (token.id) session.user.id = token.id;
       if (token.email) session.user.email = token.email;
+      if (token.displayName !== undefined) session.user.displayName = token.displayName;
+      if (token.profilePicture !== undefined) session.user.profilePicture = token.profilePicture;
+      if (token.bio !== undefined) session.user.bio = token.bio;
       return session;
     },
   },
