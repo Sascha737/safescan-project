@@ -1,5 +1,5 @@
 
-// Scan history page for logged-in users
+
 'use client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -24,7 +24,7 @@ export default function HistoryPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // Load scan history on login
+  
   useEffect(() => {
     if (status === 'authenticated') {
       fetch('/api/history')
@@ -39,7 +39,7 @@ export default function HistoryPage() {
     }
   }, [status, router]);
 
-  // Delete a scan by id
+  
   async function handleDelete(id: string) {
     if (!window.confirm('Delete this scan?')) return;
     const res = await fetch('/api/history/delete', {
@@ -56,13 +56,13 @@ export default function HistoryPage() {
 
   if (loading) return <div className="max-w-2xl mx-auto">Loading…</div>;
 
-  // Start editing notes for a scan
+  
   async function handleEdit(id: string, notes: string | undefined) {
     setEditingId(id);
     setEditValue(notes || '');
   }
 
-  // Save edited notes
+  
   async function handleEditSave(id: string) {
     const res = await fetch('/api/history/edit', {
       method: 'PATCH',

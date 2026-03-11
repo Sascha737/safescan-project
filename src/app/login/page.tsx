@@ -1,38 +1,50 @@
+
+// Client-side login page for user authentication
 'use client';
 
-import { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
+import { useState } from 'react'; // React state management
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Password visibility icons
+import { signIn } from 'next-auth/react'; // NextAuth sign-in
+import { useRouter } from 'next/navigation'; // Next.js router
+
+
+// Login form component
 export default function LoginPage() {
+  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+
+  // Handle form submission and authenticate user
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // Attempt sign-in with credentials
     const res = await signIn('credentials', {
       redirect: false,
       email,
       password,
     });
 
+    // Handle authentication result
     if (res?.error) {
       setError(res.error);
     } else {
-      router.push('/');
+      router.push('/'); // Redirect on success
     }
   };
 
+  // Render login form UI
   return (
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-4">Log in</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email input */}
         <input
           type="email"
           value={email}
@@ -41,6 +53,7 @@ export default function LoginPage() {
           className="w-full border rounded px-3 py-2"
           required
         />
+        {/* Password input with visibility toggle */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -60,6 +73,7 @@ export default function LoginPage() {
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
+        {/* Submit button */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
@@ -67,9 +81,11 @@ export default function LoginPage() {
           Log in
         </button>
       </form>
+      {/* Password reset link */}
       <div className="mt-2 text-right">
         <a href="/reset-password" className="text-blue-600 underline text-sm">Forgot password?</a>
       </div>
+      {/* Error message display */}
       {error && <p className="mt-4 text-red-600">{error}</p>}
     </div>
   );

@@ -1,39 +1,48 @@
+
+// Main scan page for submitting and analyzing website URLs
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 
-// Main scan page
+import { useState } from 'react'; // React state management
+import { useSession } from 'next-auth/react'; // NextAuth session
+import Link from 'next/link'; // Next.js link
+
+ 
+
+// Scan page component
 export default function Home() {
-  const { data: session } = useSession(); // used for header and student features
+  const { data: session } = useSession(); // Current user session
+  // Form and result state
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  // Summary of scan results
   type SummaryItem = { icon: string; text: string; level: 'pass' | 'warning' | 'issue' };
   const [summary, setSummary] = useState<SummaryItem[]>([]);
-    type ExplanationMap = { [key: string]: string };
-    const explanations: ExplanationMap = {
-      'Uses HTTPS': 'HTTPS encrypts data between your browser and the website, protecting your information from attackers.',
-      'Missing HTTPS (use https://)': 'This site does not use HTTPS. Information you send or receive could be intercepted by others.',
-      'CSP header present': 'Content Security Policy (CSP) helps prevent malicious scripts from running on the site.',
-      'CSP header missing': 'No Content Security Policy (CSP) header found. This makes it easier for attackers to inject malicious scripts.',
-      'HSTS header present': 'HTTP Strict Transport Security (HSTS) forces browsers to use secure connections only.',
-      'HSTS header missing': 'No HSTS header found. Browsers may connect over insecure HTTP, which is less safe.',
-      'X-Frame-Options header present': 'X-Frame-Options protects your site from clickjacking attacks by preventing it from being embedded in other sites.',
-      'X-Frame-Options header missing': 'No X-Frame-Options header found. The site could be embedded elsewhere, making clickjacking attacks possible.',
-    };
+  // Explanations for each result
+  type ExplanationMap = { [key: string]: string };
+  const explanations: ExplanationMap = {
+    'Uses HTTPS': 'HTTPS encrypts data between your browser and the website, protecting your information from attackers.',
+    'Missing HTTPS (use https://)': 'This site does not use HTTPS. Information you send or receive could be intercepted by others.',
+    'CSP header present': 'Content Security Policy (CSP) helps prevent malicious scripts from running on the site.',
+    'CSP header missing': 'No Content Security Policy (CSP) header found. This makes it easier for attackers to inject malicious scripts.',
+    'HSTS header present': 'HTTP Strict Transport Security (HSTS) forces browsers to use secure connections only.',
+    'HSTS header missing': 'No HSTS header found. Browsers may connect over insecure HTTP, which is less safe.',
+    'X-Frame-Options header present': 'X-Frame-Options protects your site from clickjacking attacks by preventing it from being embedded in other sites.',
+    'X-Frame-Options header missing': 'No X-Frame-Options header found. The site could be embedded elsewhere, making clickjacking attacks possible.',
+  };
   const [showDetails, setShowDetails] = useState(false);
 
-  // Handle scan form submit with client-side URL validation
+
+  // Handle scan form submission and validate input
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setResult(null);
     if (!url.trim()) return;
 
-    // Client-side URL validation
+    // Validate URL format
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url.trim());
@@ -48,6 +57,7 @@ export default function Home() {
 
     setLoading(true);
     try {
+      // Send scan request to API
       const res = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,7 +68,7 @@ export default function Home() {
         setError(data.error || 'Scan failed');
       } else {
         setResult(data);
-        // Build summary for UI
+        // Build summary of scan results
         const s: SummaryItem[] = [];
         if (data.https) {
           s.push({ icon: '✅', text: 'Uses HTTPS', level: 'pass' });
@@ -86,12 +96,12 @@ export default function Home() {
     setLoading(false);
   };
 
-  // Scanning is open to everyone; optionally encourage login for extra features
-
+  // Render scan form and results UI
   return (
     <div className="max-w-xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Enter a website URL to scan</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* URL input */}
         <input
           type="url"
           value={url}
@@ -100,6 +110,7 @@ export default function Home() {
           className="w-full border rounded px-3 py-2"
           required
         />
+        {/* Submit button */}
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -108,7 +119,7 @@ export default function Home() {
         </button>
       </form>
 
-      {/* high-level result indicators */}
+      {/* High-level result indicators */}
       {summary.length > 0 && (
         <div className="mt-4 flex space-x-4 text-sm bg-gray-100 p-2 rounded">
           <span className="flex items-center text-green-800">
@@ -221,3 +232,4 @@ export default function Home() {
     </div>
   );
 }
+    

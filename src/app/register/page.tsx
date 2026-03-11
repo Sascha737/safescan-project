@@ -1,12 +1,18 @@
+
+// Client-side registration page for new user sign-up
 'use client';
 
-import { useState } from 'react';
-import zxcvbn from 'zxcvbn';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 
+import { useState } from 'react'; // React state management
+import zxcvbn from 'zxcvbn'; // Password strength estimation
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Password visibility icons
+import { useRouter } from 'next/navigation'; // Next.js router
+import { signIn } from 'next-auth/react'; // NextAuth sign-in
+
+
+// Registration form component
 export default function RegisterPage() {
+  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,19 +22,26 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
+
+  // Handle form submission and register user
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    // Password strength validation
+
+    // Validate password requirements
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/;
     if (!passwordRegex.test(password)) {
       setError('Password must have at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.');
       return;
     }
+
+    // Send registration request to API
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -38,7 +51,7 @@ export default function RegisterPage() {
     if (!res.ok) {
       setError(data.error || 'Registration failed');
     } else {
-      // Automatically log in after successful registration
+      // Auto-login after successful registration
       const loginRes = await signIn('credentials', {
         redirect: false,
         email,
@@ -52,10 +65,12 @@ export default function RegisterPage() {
     }
   };
 
+  // Render registration form UI
   return (
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl font-bold mb-4">Sign up</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email input */}
         <input
           type="email"
           value={email}
@@ -64,7 +79,7 @@ export default function RegisterPage() {
           className="w-full border rounded px-3 py-2"
           required
         />
-        {/* Password requirements (moved above password field) */}
+        {/* Password requirements info */}
         <div className="mb-2 text-xs text-gray-600">
           Password must have at least:
           <ul className="list-disc ml-5">
@@ -75,6 +90,7 @@ export default function RegisterPage() {
             <li>8 characters minimum</li>
           </ul>
         </div>
+        {/* Password input with strength meter */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -97,7 +113,7 @@ export default function RegisterPage() {
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {/* Password strength bar (only show if password is not empty) */}
+        {/* Password strength bar */}
         {password.length > 0 && (
           <div className="mb-2">
             <div className="h-2 w-full rounded bg-gray-200">
@@ -122,6 +138,7 @@ export default function RegisterPage() {
             </div>
           </div>
         )}
+        {/* Confirm password input with visibility toggle */}
         <div className="relative">
           <input
             type={showConfirmPassword ? "text" : "password"}
@@ -141,6 +158,7 @@ export default function RegisterPage() {
             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
+        {/* Submit button */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
@@ -148,6 +166,7 @@ export default function RegisterPage() {
           Create account
         </button>
       </form>
+      {/* Error message display */}
       {error && <p className="mt-4 text-red-600">{error}</p>}
     </div>
   );
